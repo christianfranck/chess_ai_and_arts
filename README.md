@@ -1,1 +1,1 @@
-# Chess for the AI&Arts projects
+# Chess for the AI&Arts project
