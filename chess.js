@@ -54,6 +54,7 @@ var whiteToMove=false;
 var movCntLimitWhite=100;
 var movCntLimitBlack=100;
 var startingPosition;
+var groundsize=500;
 
 function shuffle(array)
 {
@@ -137,8 +138,34 @@ var A=['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','
     'X',' ',' ',' ','X',' ',' ','X',' ','R',' ',' ',' ','X','X','X',' ',' ',' ',' ',' ',' ',' ',' ','X',
     'X','X',' ',' ','X',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','X','X','X','X','X','X',
     'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'];
-
 var L=25;
+
+if(document.title=="hologram")
+{
+    A=['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',
+        'X','X',' ',' ',' ',' ',' ',' ',' ','b',' ',' ',' ',' ','b','X','X',
+        'X',' ',' ','q','k',' ',' ',' ',' ',' ',' ','X','X',' ',' ',' ','X',
+        'X',' ',' ',' ','X','X','n',' ','X',' ',' ',' ',' ',' ',' ',' ','X',
+        'X',' ',' ',' ','n',' ',' ',' ','X',' ',' ',' ','p',' ',' ','r','X',
+        'X','p','p',' ','r','p',' ',' ','p',' ',' ',' ',' ','p',' ','p','X',
+        'X','p','X','X','X','X',' ',' ',' ',' ',' ',' ','X',' ',' ','X','X',
+        'X',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','X','X',
+        'X',' ',' ',' ',' ',' ',' ',' ','X',' ',' ',' ',' ',' ',' ',' ','X',
+        'X',' ','X','X','X',' ',' ',' ',' ',' ',' ','X',' ',' ',' ',' ','X',
+        'X','P',' ',' ',' ',' ',' ',' ',' ','P',' ',' ',' ',' ','P',' ','X',
+        'X',' ','P','N',' ',' ',' ','R','P','P','N',' ',' ',' ','P','X','X',
+        'X','Q','X',' ',' ','X','X',' ',' ',' ',' ',' ','P',' ','K','X','X',
+        'X',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','X','X',
+        'X',' ',' ',' ',' ',' ','B','R',' ','X','X','X','X',' ',' ','X','X',
+        'X','X','X','X','X','X','X',' ',' ',' ',' ',' ','B',' ',' ',' ','X',
+        'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'];
+
+    L=17;
+}
+
+
+
+
 
 
 function colListener (main, collided)
@@ -172,14 +199,16 @@ function recoverBoard()
         p=pieces[i];
         if (p.visibility==1)
         {
-            var x=Math.floor(((p.position.x+5)/10)+12);
-            var z=Math.floor(((p.position.z+5)/10)+12);
+            var TT=Math.floor(L/2);
+            var x=Math.floor(((p.position.x+5)/10)+TT);
+            var z=Math.floor(((p.position.z+5)/10)+TT);
             if (x>0 && x<L-1 && z>0 && z<L-1)
             {
                 A[x+z*L]=p.name;
             }
         }
     }
+    dumpBoard();
 }
 
 function getMesh(pos,t)
@@ -188,9 +217,10 @@ function getMesh(pos,t)
     // console.log("t  :"+t);
     for (var i=0 ; i<pieces.length ; i++)
     {
+        var TT=Math.floor(L/2);
         p=pieces[i];
-        var x=Math.floor(((p.position.x+5)/10)+12);
-        var z=Math.floor(((p.position.z+5)/10)+12);
+        var x=Math.floor(((p.position.x+5)/10)+TT);
+        var z=Math.floor(((p.position.z+5)/10)+TT);
         if (x>0 && x<L-1 && z>0 && z<L-1)
         {
             if (x+z*L==pos && A[x+z*L]==t)    return p;
@@ -204,9 +234,10 @@ function getMeshT(t)
 
     for (var i=0 ; i<pieces.length ; i++)
     {
+        var TT=Math.floor(L/2);
         p=pieces[i];
-        var x=Math.floor(((p.position.x+5)/10)+12);
-        var z=Math.floor(((p.position.z+5)/10)+12);
+        var x=Math.floor(((p.position.x+5)/10)+TT);
+        var z=Math.floor(((p.position.z+5)/10)+TT);
         if (x>0 && x<L-1 && z>0 && z<L-1)
         {
             if (p.visibility==1 && A[x+z*L]==t)    return p;
@@ -226,9 +257,9 @@ function makeMove(m)
             a.physicsImpostor.registerOnPhysicsCollide(b.physicsImpostor, colListener);
             a['targetCollide']=b;
         }
-
-        var x=(Math.floor(m[2]%L)-12)*10;
-        var y=(Math.floor(m[2]/L)-12)*10;
+        var TT=Math.floor(L/2);
+        var x=(Math.floor(m[2]%L)-TT)*10;
+        var y=(Math.floor(m[2]/L)-TT)*10;
         a['targetX']=x;
         a['targetZ']=y;
         a['targetCount']=1000;
@@ -723,14 +754,23 @@ var createScene = function ()
     var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
     light.intensity=1.0;
 
-    //Adding an Arc Rotate Camera
-    camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.3, 220, new BABYLON.Vector3(0, 0, 0), scene);
+    if (document.title!="hologram")
+    {
+        camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.3, 220, new BABYLON.Vector3(0, 0, 0), scene);
+    }
+    else
+    {
+        camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.1, 300, new BABYLON.Vector3(0, 0, 0), scene);
+        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
+        groundsize=L*10;
+    }
+
     camera.attachControl(canvas, false);
 
     camera.lowerBetaLimit = 0;
     camera.upperBetaLimit = Math.PI /2-0.1;
 
-    ground = BABYLON.Mesh.CreateGround("ground", 500, 500, 0, scene, true);
+    ground = BABYLON.Mesh.CreateGround("ground", groundsize, groundsize, 0, scene, true);
     //ground.position.x -= 200;
     ground.position.y = 0;
     var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
@@ -750,24 +790,27 @@ var createScene = function ()
 
     //SKY
 
-    // Sky material
-    var skyboxMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
-    skyboxMaterial.backFaceCulling = false;
-    //skyboxMaterial._cachedDefines.FOG = true;
-    skyboxMaterial.turbidity = 2;
-    skyboxMaterial.luminance = 0.05;
-    skyboxMaterial.inclination = 0.45; // The solar inclination, related to the solar azimuth in interval [0, 1]
-    skyboxMaterial.azimuth = 0.05; // The solar azimuth in interval [0, 1]
+    if (document.title!="hologram")
+    {
+        // Sky material
+        var skyboxMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
+        skyboxMaterial.backFaceCulling = false;
+        //skyboxMaterial._cachedDefines.FOG = true;
+        skyboxMaterial.turbidity = 2;
+        skyboxMaterial.luminance = 0.05;
+        skyboxMaterial.inclination = 0.45; // The solar inclination, related to the solar azimuth in interval [0, 1]
+        skyboxMaterial.azimuth = 0.05; // The solar azimuth in interval [0, 1]
 
-    // Sky mesh (box)
-    skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, scene);
-    skybox.material = skyboxMaterial;
-    skybox.isPickable=false;
-    skybox.position.y+=0;
+        // Sky mesh (box)
+        skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, scene);
+        skybox.material = skyboxMaterial;
+        skybox.isPickable=false;
+        skybox.position.y+=0;
+    }
 
-
-    for (var i=-11 ; i<12 ; i++)
-        for (var j=-11 ; j<12 ; j++)
+    var TT=Math.floor(L/2);
+    for (var i=-TT+1 ; i<TT ; i++)
+        for (var j=-TT+1 ; j<TT ; j++)
         {
             //if (A[i+10][j+10]==1)   continue;
             var ground2 = BABYLON.Mesh.CreateGround("ground2", 10, 10, 0, scene, false);
@@ -787,7 +830,7 @@ var createScene = function ()
                 ground2Material.diffuseColor = new BABYLON.Color3(1.0, 1.0, 1.0);
 
             }
-            if (A[i+12+(j+12)*25]=='X')
+            if (A[i+TT+(j+TT)*L]=='X')
             {
                 ground2Material.specularColor = new BABYLON.Color3(0.4, 1.0, 0.4);
                 ground2Material.diffuseColor = new BABYLON.Color3(0.4, 1.0, 0.4);
@@ -925,11 +968,11 @@ var createScene = function ()
     assetsManager.onFinish = function (tasks)
     {
         console.log("meshes loaded");
-
-        for (var i=-12 ; i<13 ; i++)
-            for (var j=-12 ; j<13 ; j++)
+        var TT=Math.floor(L/2);
+        for (var i=-TT ; i<TT+1 ; i++)
+            for (var j=-TT ; j<TT+1 ; j++)
             {
-                var c=A[i+12+(j+12)*25];
+                var c=A[i+TT+(j+TT)*L];
                 if ("KkQqBbNnRrPp".includes(c))
                 {
                     var mesh=meshes_pieces.get(c).clone();
@@ -1181,7 +1224,7 @@ var createScene = function ()
     var leaves_on_branch = 5;
     var leaf_wh_ratio = 0.5;
 
-    var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
+    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, leaf_wh_ratio, leafcolor, scene);
     //tree.position.y = -10;
 
     return scene;
