@@ -746,7 +746,9 @@ var moveToTarget = function ()
 
 var createScene = function ()
 {
+
     var scene = new BABYLON.Scene(engine);
+    //Ammo();
     scene.enablePhysics(new BABYLON.Vector3(0, -10, 0), new BABYLON.AmmoJSPlugin());
     //  scene.enablePhysics();
     // Ammo();
@@ -1224,7 +1226,9 @@ var createScene = function ()
     var leaves_on_branch = 5;
     var leaf_wh_ratio = 0.5;
 
-    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, leaf_wh_ratio, leafcolor, scene);
+    //hologram
+//    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, leaf_wh_ratio, leafcolor, scene);
+    var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
     //tree.position.y = -10;
 
     return scene;
@@ -1247,6 +1251,7 @@ window.initFunction = async function ()
 
     window.engine = await asyncEngineCreation();
     if (!engine) throw 'engine should not be null.';
+    await Ammo();
     window.scene = createScene();
 };
 
