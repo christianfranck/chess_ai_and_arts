@@ -322,7 +322,7 @@ function makeMove(m)
             a.scaling.x=s;
             a.scaling.y=s;
             a.scaling.z=s;
-            cameraspin=0.05;
+            cameraspin=0.02;
 
             a.physicsImpostor.setMass(1000);
             a['targetX']=0;
@@ -792,16 +792,17 @@ var createScene = function ()
     // Ammo();
     //Adding a light
 
-    var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
-    light.intensity=0.55;
-    var light2 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(-20, -20, 100), scene);
-    light2.intensity=0.55;
+    var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 0), scene);
+    light.intensity=0.70;
+    var light2 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(-40, -40, -100), scene);
+    light2.intensity=0.0;
 
 //    var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 00, 20), scene);
-    var light3 = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(-1, -1, 0), scene);
-    light3.intensity=0.6;
+ //   var light3 = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(-1, -1, 0), scene);
+  //  light3.intensity=0.6;
 
-
+    var light4 = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+    light4.intensity=0.50;
     // if (document.title!="hologram")
     // {
     //     camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.3, 220, new BABYLON.Vector3(0, 0, 0), scene);
@@ -812,8 +813,8 @@ var createScene = function ()
     //     scene.clearColor = new BABYLON.Color4(0, 0, 0, 1);
     //     groundsize=L*10;
     // }
-    camera2 = new BABYLON.ArcRotateCamera("Camera2", 1.57, 1.1, 250, new BABYLON.Vector3(0, 0, 0), scene);
-    camera = new BABYLON.ArcRotateCamera("Camera", -1.57, 1.1, 250, new BABYLON.Vector3(0, 0, 0), scene);
+    camera2 = new BABYLON.ArcRotateCamera("Camera2", 1.57, 1.1, 230, new BABYLON.Vector3(0, 0, 0), scene);
+    camera = new BABYLON.ArcRotateCamera("Camera", -1.57, 1.1, 230, new BABYLON.Vector3(0, 0, 0), scene);
     view2 = engine.registerView(document.getElementById("renderCanvas2"), camera2);
     view = engine.registerView(document.getElementById("renderCanvas"), camera);
     view2.enabled=true;
@@ -824,7 +825,7 @@ var createScene = function ()
     // scene.activeCameras.push(camera2);
     console.log("Number of active cameras: ",scene.activeCameras.length);
 
-  //  camera.attachControl(canvas, false);
+    camera.attachControl(canvas, false);
 
     camera.lowerBetaLimit = 0;
     camera.upperBetaLimit = Math.PI /2-0.1;
@@ -855,10 +856,10 @@ var createScene = function ()
         var skyboxMaterial = new BABYLON.SkyMaterial("skyMaterial", scene);
         skyboxMaterial.backFaceCulling = false;
         //skyboxMaterial._cachedDefines.FOG = true;
-        skyboxMaterial.turbidity = 2;
+        skyboxMaterial.turbidity = 20;
         skyboxMaterial.luminance = 0.05;
-        skyboxMaterial.inclination = 0.19; // The solar inclination, related to the solar azimuth in interval [0, 1]
-        skyboxMaterial.azimuth = 0.09; // The solar azimuth in interval [0, 1]
+        //skyboxMaterial.inclination = 0.19; // The solar inclination, related to the solar azimuth in interval [0, 1]
+        //skyboxMaterial.azimuth = 0.09; // The solar azimuth in interval [0, 1]
         skyboxMaterial.rayleigh = 2;
 
         //skyMaterial.cameraOffset.y = scene.activeCamera.globalPosition.y;
@@ -1023,8 +1024,8 @@ var createScene = function ()
     // Move the light with the camera
     scene.registerBeforeRender(function ()
     {
-        light.position = camera.position;
-        light2.position = camera2.position;
+        // light.position = camera.position;
+        // light2.position = camera2.position;
     });
 
     assetsManager.onFinish = function (tasks)
@@ -1397,8 +1398,9 @@ var createScene = function ()
     var leaf_wh_ratio = 0.5;
 
     //hologram
-    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, 0.1*leaf_wh_ratio, leafcolor, scene);
- //   var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
+    var tree = createTree(2.3*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, 0.1*leaf_wh_ratio, leafcolor, scene);
+    //var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, 0.1*leaf_wh_ratio, leafcolor, scene);
+    //   var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
     //tree.position.y = -10;
 
     return scene;
@@ -1488,6 +1490,10 @@ initFunction().then(() =>
             //skybox.rotation.y += 1;
             //skyboxMaterial.reflectionTexture.rotationY += 0.001;
 
+            if (scene.activeCamera.name === "Camera")
+                skybox.material.azimuth=0.8;
+            else
+                skybox.material.azimuth=0.3;
 
             sceneToRender.render();
             loopcount += 1;
@@ -1511,11 +1517,16 @@ initFunction().then(() =>
             // skybox.material.sunPosition.z=0.5;
 
 
-
-            camera.alpha+=cameraspin;
-
-            camera2.alpha=Math.PI*0.5+Math.sin(loopcount/1000)*0.2;
-            camera.alpha=Math.PI*1.5+Math.sin(loopcount/1000)*0.2;
+            if (gameover)
+            {
+                camera.alpha += cameraspin;
+                camera2.alpha += cameraspin;
+            }
+            else
+            {
+                camera2.alpha=Math.PI*0.5+Math.sin(loopcount/1000)*0.2;
+                camera.alpha=Math.PI*1.5+Math.sin(loopcount/1000)*0.2;
+            }
             checkFallen();
             moveToTarget();
             if (gameover>0) gameover++;
