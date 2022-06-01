@@ -791,10 +791,17 @@ var createScene = function ()
     //  scene.enablePhysics();
     // Ammo();
     //Adding a light
+
     var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 20, 100), scene);
-    light.intensity=1.0;
+    light.intensity=0.55;
     var light2 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(-20, -20, 100), scene);
-    light2.intensity=1.0;
+    light2.intensity=0.55;
+
+//    var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(20, 00, 20), scene);
+    var light3 = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(-1, -1, 0), scene);
+    light3.intensity=0.6;
+
+
     // if (document.title!="hologram")
     // {
     //     camera = new BABYLON.ArcRotateCamera("Camera", 0, 1.3, 220, new BABYLON.Vector3(0, 0, 0), scene);
@@ -850,14 +857,16 @@ var createScene = function ()
         //skyboxMaterial._cachedDefines.FOG = true;
         skyboxMaterial.turbidity = 2;
         skyboxMaterial.luminance = 0.05;
-        skyboxMaterial.inclination = 0.45; // The solar inclination, related to the solar azimuth in interval [0, 1]
-        skyboxMaterial.azimuth = 0.05; // The solar azimuth in interval [0, 1]
+        skyboxMaterial.inclination = 0.19; // The solar inclination, related to the solar azimuth in interval [0, 1]
+        skyboxMaterial.azimuth = 0.09; // The solar azimuth in interval [0, 1]
+        skyboxMaterial.rayleigh = 2;
 
+        //skyMaterial.cameraOffset.y = scene.activeCamera.globalPosition.y;
         // Sky mesh (box)
         skybox = BABYLON.Mesh.CreateBox("skyBox", 1000.0, scene);
         skybox.material = skyboxMaterial;
         skybox.isPickable=false;
-        skybox.position.y+=0;
+        skybox.position.y-=300;
     }
 
     var TT=Math.floor(L/2);
@@ -1015,6 +1024,7 @@ var createScene = function ()
     scene.registerBeforeRender(function ()
     {
         light.position = camera.position;
+        light2.position = camera2.position;
     });
 
     assetsManager.onFinish = function (tasks)
@@ -1258,6 +1268,8 @@ var createScene = function ()
 
     function getTouchPosition(canvas, touchEvent) {
         var rect = canvas.getBoundingClientRect();
+
+        if (touchEvent.touches.length==0) return null;
         const x = touchEvent.touches[0].clientX - rect.left;
         const y = touchEvent.touches[0].clientY - rect.top;
 //        console.log("x: " + x + " y: " + y)
@@ -1275,7 +1287,8 @@ var createScene = function ()
         var p =getTouchPosition(canvasA, e);
         e.preventDefault();
         mouseupA=p
-        //       console.log("mouseup A "+p);
+        mouseupA=[0,0];
+        console.log("touchend A "+p);
     })
     canvasA.addEventListener('touchmove', function(e) {
         var p =getTouchPosition(canvasA, e);
@@ -1292,8 +1305,9 @@ var createScene = function ()
 
     canvasA.addEventListener('mouseup', function(e) {
         var p =getCursorPosition(canvasA, e);
-        mouseupA=p
- //       console.log("mouseup A "+p);
+        mouseupA=p;
+        mouseupA=[0,0];
+        console.log("mouseup A "+p);
     })
 
     // canvasA.addEventListener('mouseout', function(e) {
@@ -1320,7 +1334,8 @@ var createScene = function ()
         var p =getTouchPosition(canvasB, e);
         e.preventDefault();
         mouseupB=p
-        //       console.log("mouseup B "+p);
+        mouseupB=[0,0];
+        console.log("touchend B "+p);
     })
     canvasB.addEventListener('touchmove', function(e) {
         var p =getTouchPosition(canvasB, e);
@@ -1339,6 +1354,7 @@ var createScene = function ()
     canvasB.addEventListener('mouseup', function(e) {
         var p =getCursorPosition(canvasB, e);
         mouseupB=p
+        mouseupB=[0,0];
  //       console.log("mouseup B "+p);
     })
 
@@ -1381,8 +1397,8 @@ var createScene = function ()
     var leaf_wh_ratio = 0.5;
 
     //hologram
-//    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, leaf_wh_ratio, leafcolor, scene);
-    var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
+    var tree = createTree(2.5*trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch*2, 0.1*leaf_wh_ratio, leafcolor, scene);
+ //   var tree = createTree(trunk_height, trunk_taper, trunk_slices, bark, boughs, forks, fork_angle, fork_ratio, branches, branch_angle, bow_freq, bow_height, leaves_on_branch, leaf_wh_ratio, leafcolor, scene);
     //tree.position.y = -10;
 
     return scene;
@@ -1493,7 +1509,13 @@ initFunction().then(() =>
             // skybox.material.sunPosition.x=-skybox.material.sunPosition.x;
             // skybox.material.sunPosition.z=skybox.material.sunPosition.z;
             // skybox.material.sunPosition.z=0.5;
+
+
+
             camera.alpha+=cameraspin;
+
+            camera2.alpha=Math.PI*0.5+Math.sin(loopcount/1000)*0.2;
+            camera.alpha=Math.PI*1.5+Math.sin(loopcount/1000)*0.2;
             checkFallen();
             moveToTarget();
             if (gameover>0) gameover++;
@@ -1516,17 +1538,29 @@ initFunction().then(() =>
                             { return mesh == ground;});
                         startingPointA=null;
                         if (pickGround.hit) {startingPointA=pickGround.pickedPoint;}
-                        var x=Math.floor(((currentMeshA.position.x+5)/10)+12);
-                        var z=Math.floor(((currentMeshA.position.z+5)/10)+12);
-                        startingPositionA= x+z*L;
-                        humanMoveInProgressA=true;
-                        pieces.forEach(function(p) {
-                            if (p!=currentMeshA)
-                                currentMeshA.physicsImpostor.registerOnPhysicsCollide(p.physicsImpostor, colListener);
-                        });
-                        console.log("startingPointA", startingPointA);
+                        console.log("startingPointA",  startingPointA, startingPointA._isDirty);
+                        //if (!startingPointA._isDirty)
+                        {
+
+                            var x=Math.floor(((currentMeshA.position.x+5)/10)+12);
+                            var z=Math.floor(((currentMeshA.position.z+5)/10)+12);
+                            startingPositionA= x+z*L;
+                            humanMoveInProgressA=true;
+                            pieces.forEach(function(p) {
+                                if (p!=currentMeshA)
+                                    currentMeshA.physicsImpostor.registerOnPhysicsCollide(p.physicsImpostor, colListener);
+                            });
+
+                        }
+                        // else
+                        // {
+                        //     currentMeshA=null;
+                        //     startingPointA=null;
+                        // }
+
                     }
                     mousedownA = null;
+                    mouseupA = null;
 
                 }
             }
@@ -1549,6 +1583,7 @@ initFunction().then(() =>
                         startingPointA = current;
                     }
                     mousemoveA = null;
+                    mouseupA = null;
                 }
             }
 
@@ -1560,7 +1595,7 @@ initFunction().then(() =>
                     // const pickResult = scene.pick(mouseupA[0], mouseupA[1], undefined, false, scene.activeCamera);
                     // if (pickResult.pickedMesh)
                     {
-                       // console.log("dropped", pickResult.pickedMesh.name);
+                        console.log("dropped");
                         currentMeshA.position.y += 0.5;
 
                         camera.attachControl(canvasA, true);
@@ -1574,12 +1609,13 @@ initFunction().then(() =>
                         });
 
                         whiteToMove= ("PKQBNR".includes(currentMeshA.name));
-                        if(whiteToMove) movCntLimitBlack=60*30;
-                        else movCntLimitWhite=60*30;
+                        if(whiteToMove) movCntLimitBlack=60*30*5;
+                        else movCntLimitWhite=60*30*5;
 
                         var x=Math.floor(((currentMeshA.position.x+5)/10)+12);
                         var z=Math.floor(((currentMeshA.position.z+5)/10)+12);
                         if (startingPositionA=== x+z*L)    whiteToMove= !whiteToMove;
+
                     }
 
                 }
@@ -1613,6 +1649,7 @@ initFunction().then(() =>
                         console.log("startingPointB", startingPointB);
                     }
                     mousedownB = null;
+                    mouseupB = null;
 
                 }
             }
@@ -1635,6 +1672,7 @@ initFunction().then(() =>
                         startingPointB = current;
                     }
                     mousemoveB = null;
+                    mouseupB = null;
                 }
             }
 
@@ -1646,7 +1684,7 @@ initFunction().then(() =>
                     // const pickResult = scene.pick(mouseupA[0], mouseupA[1], undefined, false, scene.activeCamera);
                     // if (pickResult.pickedMesh)
                     {
-                        //console.log("dropped", pickResult.pickedMesh.name);
+                        console.log("dropped");
                         currentMeshB.position.y += 0.5;
 
                         //camera.attachControl(canvasA, true);
