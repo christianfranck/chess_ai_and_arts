@@ -72,8 +72,9 @@ var skybox;
 var computerMoveInProgress=false;
 var humanMoveInProgress=false;
 var whiteToMove=false;
-var movCntLimitWhite=100;
-var movCntLimitBlack=100;
+var MOV_COUNT_LIMIT=8*60
+var movCntLimitWhite=MOV_COUNT_LIMIT;
+var movCntLimitBlack=MOV_COUNT_LIMIT;
 var startingPosition;
 var groundsize=500;
 
@@ -1441,7 +1442,7 @@ function compNextMove()
 
     if (movCnt%movCntLimitWhite===0  &&  whiteToMove)
     {
-        movCntLimitWhite=100;
+        movCntLimitWhite=MOV_COUNT_LIMIT;
         //console.log("***");
         const myPromise = new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -1455,7 +1456,7 @@ function compNextMove()
     }
     if (movCnt%movCntLimitBlack===0   &&  !whiteToMove)
     {
-        movCntLimitBlack=100;
+        movCntLimitBlack=MOV_COUNT_LIMIT;
         //console.log("***");
         const myPromise = new Promise((resolve, reject) => {
             setTimeout(() => {
